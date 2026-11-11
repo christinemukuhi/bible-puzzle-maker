@@ -3,7 +3,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // IMPORTANT: must match your GitHub repo name, e.g. https://USER.github.io/bible-puzzles/
 // Change '/bible-puzzles/' if you name the repo something else.
-const base = process.env.VITE_BASE || '/bible-puzzles/';
+const base = '/bible-puzzle-maker/';
 
 export default defineConfig({
   base,

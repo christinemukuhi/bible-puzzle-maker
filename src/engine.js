@@ -118,7 +118,7 @@ export function pickStickers(text){
 // ---------- Crossword ----------
 // Clues are the verse text with the answer blanked out, so nothing is invented.
 export function makeClues(list,verses,lv,fallback={}){
-  const half={easy:3,medium:3,hard:3}[lv],entries=[],skipped=[],seen=new Set();
+  const half={easy:4,medium:5,hard:5}[lv],entries=[],skipped=[],seen=new Set();
   const core=t=>clean(t.replace(/['’]s$/i,''));
   for(const raw of list){
     const word=clean(raw);
@@ -131,14 +131,21 @@ export function makeClues(list,verses,lv,fallback={}){
       if(idx>=0&&(!hit||tk.length<hit.tk.length))hit={v,tk,idx};
     }
     if(!hit){if(fallback[word])entries.push({word,clue:fallback[word]});else skipped.push(raw);continue}
-    const {v,tk,idx}=hit,a=Math.max(0,idx-half),b=Math.min(tk.length,idx+half+1);
+    const {v,tk,idx}=hit;
+    // Use the whole phrase around the answer (up to `half` words each side), stopping at commas and full stops,
+    // so the clue reads as a complete thought and is fair to solve.
+    const stops=t=>/[.;:,?!”"]$/.test(t);
+    let a=idx,b=idx+1,l=0,r=0;
+    while(a>0&&l<half&&!stops(tk[a-1])){a--;l++}
+    while(b<tk.length&&r<half){b++;r++;if(stops(tk[b-1]))break}
+    while(b-a<6&&(a>0||b<tk.length)){if(a>0)a--;if(b-a<6&&b<tk.length)b++}   // never fewer than 6 words
     const text=tk.slice(a,b).map(t=>{
       if(core(t)!==word)return t;
       const m=t.match(/^([^\p{L}]*)(.*?)([^\p{L}]*)$/u);return m[1]+'_____'+m[3];
     }).join(' ');
     let ref=v.r||'';
-    if(ref.toUpperCase().split(/[^A-Z]+/).includes(word))ref=ref.replace(/^.*?(\d+:\d+)$/,'$1'); // don't give the answer away in the reference
-    entries.push({word,clue:(a>0?'… ':'')+text+(b<tk.length?' …':''),ref});
+    if(ref.toUpperCase().split(/[^A-Z]+/).includes(word))ref=ref.replace(/^.*?(\d+:\d+)$/,'$1'); // never give the answer away in the reference
+    entries.push({word,clue:(a>0&&!stops(tk[a-1])?'… ':'')+text+(b<tk.length&&!stops(tk[b-1])?' …':''),ref});
   }
   return{entries,skipped};
 }

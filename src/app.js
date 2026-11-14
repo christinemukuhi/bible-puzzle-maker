@@ -2,7 +2,7 @@ import './style.css';
 import D from './data/themes.json';
 import CLUES from './data/clues.json';
 import { rng, shuffle, words, clean, verseScramble, cloze, wordsearch, letters, TARGET, refLabel, passage, makeClues, crossword } from './engine.js';
-import { LANDING_URL } from './config.js';
+import { LANDING_URL, PROMO } from './config.js';
 
 // Sticker images are real files, so the browser can cache them.
 const urls = import.meta.glob('./stickers/*.webp', { eager: true, query: '?url', import: 'default' });
@@ -48,12 +48,18 @@ function body(p,key){
   const rows=p.grid.map((row,r)=>`<tr>${row.map((ch,c)=>`<td class="${key&&p.sol.has(r+','+c)?'hit':''}">${ch}</td>`).join('')}</tr>`).join('');
   return`<table class="grid">${rows}</table>`+(key?'':`<ul class="wordlist">${p.words.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`);
 }
+// Promotion line printed on the worksheets (set in src/config.js)
+function promoPrint(isKey){
+  if(!PROMO.printUrlText||(isKey&&!PROMO.showOnAnswerKey))return '';
+  return `<div class="promo-print">${PROMO.qrImage?`<img src="${esc(PROMO.qrImage)}" alt="">`:''}<span>${esc(PROMO.printText)} <b>${esc(PROMO.printUrlText)}</b></span></div>`;
+}
 function sheet(th,p,key,ref,lv){
   const mode=$('#stk').value,c=CP[th.cat]||CP.old_testament_stories,on=mode!=='none';
   return`<article class="sheet lv-${lv}${mode==='bw'?' bw':''}" style="--acc:${c[0]};--accd:${c[1]}"><div class="name-line"><span>Name</span><i></i><span>Date</span><i></i></div>
   <div class="band">${on?img(th.stk[0]):''}<h2>${esc(th.title)}</h2>${on?img(th.stk[1]):''}</div><p class="sub">${esc(NAMES[p.type])}${key?' – Answer Key':''}${ref?' · '+esc(ref):''}</p>
   ${key?'<div style="height:.3in"></div>':`<p class="how">${how(p)}</p>`}${body(p,key)}
   <div class="strip">${on?th.stk.slice(2).map(img).join(''):''}</div>
+  ${promoPrint(key)}
   <footer>Made with Bible Puzzle Maker${p.type==='scramble'||p.type==='cloze'?' · World English Bible':''}</footer></article>`;
 }
 
@@ -65,6 +71,21 @@ function fillVerses(){
   const th=D.themes[$('#theme').value];
   $('#verse').innerHTML=th.verses.map((v,i)=>`<option value="${i}">${esc(v.r)} — ${esc(words(v.t).slice(0,6).join(' '))}…</option>`).join('');
   $('#verse').value='0';
+}
+// Shrinks a page's contents a little when a harder puzzle would not fit on one sheet
+function fitSheets(){
+  document.querySelectorAll('.sheet').forEach(function(s){
+    var kids=[].slice.call(s.children);
+    var set=function(z){kids.forEach(function(k){k.style.zoom=z})};
+    var over=function(){return s.scrollHeight>s.clientHeight+1};
+    var z=1;set(1);
+    while(over()&&z>0.78){z-=0.03;set(z)}                 // first try shrinking everything slightly
+    if(over()){                                           // still too tall: drop the sticker row, then shrink more
+      var st=s.querySelector('.strip');if(st)st.style.display='none';
+      z=1;set(1);
+      while(over()&&z>0.6){z-=0.03;set(z)}
+    }
+  });
 }
 /* ---------- render ---------- */
 const emptyMsg=m=>{$('#preview').innerHTML=`<p class="empty">${m}</p>`};
@@ -97,15 +118,23 @@ function render(){
     p=type==='wordsearch'?wordsearch(th.vocab,lv,r):letters(th.vocab,lv,r);
     if(!(p.words||p.items).length)return emptyMsg('Not enough words for this puzzle. Try another theme.');
   }
-  $('#preview').innerHTML=sheet(th,p,false,ref,lv)+($('#key').checked?sheet(th,p,true,ref,lv):'');
+  const hint=window.innerWidth<=900?'<p class="note">Tip: tap a page to zoom in or out.</p>':'';
+  $('#preview').innerHTML=hint+sheet(th,p,false,ref,lv)+($('#key').checked?sheet(th,p,true,ref,lv):'');
+  fitSheets();
 }
 $('#theme').addEventListener('input',()=>{fillVerses();render()});
 ['type','verse','len','level','paper','key','stk'].forEach(id=>$('#'+id).addEventListener('input',render));
+// On phones the page preview is small: tap a page to zoom in or out
+$('#preview').addEventListener('click',function(e){if(window.innerWidth<=900&&e.target.closest&&e.target.closest('.sheet'))this.classList.toggle('big')});
 $('#again').addEventListener('click',()=>{seed=Date.now();render()});
 $('#print').addEventListener('click',()=>window.print());
 $('#hdrStk').innerHTML=['lamb','dove','star'].map(img).join('');
-// Optional "more puzzles coming" link: set LANDING_URL in src/config.js
-if(/^https?:\/\//.test(LANDING_URL)&&!LANDING_URL.includes('YOUR-')){$('#more a').href=LANDING_URL;$('#more').hidden=false}
+// In-app banner for your paid editions: set LANDING_URL and PROMO in src/config.js
+if(/^https?:\/\//.test(LANDING_URL)&&!LANDING_URL.includes('YOUR-')&&PROMO.appBannerText){
+  const m=$('#more');
+  m.innerHTML=`<span>${esc(PROMO.appBannerText)}</span> <a href="${esc(LANDING_URL)}" target="_blank" rel="noopener">${esc(PROMO.appBannerButton)}</a>`;
+  m.hidden=false;
+}
 fillVerses();render();
 
 // ----- install -----

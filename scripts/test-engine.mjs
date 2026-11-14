@@ -56,7 +56,8 @@ for (const th of D.themes) for (const lv of ['easy', 'medium', 'hard']) {
   assert.ok(![...cw.across, ...cw.down].some((e) => e.clue.toUpperCase().split(/[^A-Z]+/).includes(e.word)), th.id + ' clue does not contain its answer');
   if (cw.words.length < 4) { skippedThemes++; console.log('  thin crossword:', th.id, lv, cw.words.length, 'of', th.vocab.length, 'skipped', skipped.join(',')); continue; }
   checkCrossword(cw, th.id + ' ' + lv);
-  assert.ok(cw.words.length <= { easy: 8, medium: 10, hard: 13 }[lv]);
+  assert.ok(cw.words.length <= { easy: 6, medium: 8, hard: 9 }[lv]);
+  assert.ok(cw.grid.length <= { easy: 10, medium: 12, hard: 14 }[lv] && cw.grid[0].length <= { easy: 10, medium: 12, hard: 14 }[lv], th.id + ' crossword grid stays small enough to print');
   stats[lv].push(cw.words.length);
 }
 for (const k in stats) console.log('crossword', k, 'words placed min/avg/max', Math.min(...stats[k]), (stats[k].reduce((a, b) => a + b, 0) / stats[k].length).toFixed(1), Math.max(...stats[k]), 'themes ok', stats[k].length);

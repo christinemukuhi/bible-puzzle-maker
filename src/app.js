@@ -15,14 +15,14 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 /* ---------- worksheet ---------- */
 const NAMES={crossword:'Crossword',wordsearch:'Word Search',letters:'Word Scramble',scramble:'Verse Scramble',cloze:'Fill in the Blanks'};
 function how(p){
-  if(p.type==='crossword')return'Read each clue and write the answer in the grid. The numbers match the clues.'+(p.bank?' Use the word bank to help you.':'');
+  if(p.type==='crossword')return'Read each clue and write the answer in the grid.'+(p.counts?' The number in ( ) shows how many letters.':'')+(p.bank?' Use the word bank to help you.':'');
   if(p.type==='wordsearch')return'Find the hidden words. They can go across, down, and diagonally.';
   if(p.type==='letters')return p.first?'Unscramble the letters to spell a word from the story. The first letter is already in place.':'Unscramble the letters to spell a word from the story.';
   if(p.type==='scramble')return'Put the pieces in the right order to write the verse.';
   return'Use the word bank to fill in the missing words.'+(p.extra?' Some words in the bank are not needed.':'');
 }
 const NOTES={
-  crossword:{easy:'Up to 8 words, short clues, letter counts and a word bank.',medium:'Up to 10 words, letter counts, no word bank.',hard:'Up to 13 words, longer clues, no letter counts, no word bank.'},
+  crossword:{easy:'Up to 6 words, short clues, letter counts and a word bank.',medium:'Up to 8 words, letter counts, no word bank.',hard:'Up to 9 words, longer clues, no letter counts, no word bank.'},
   wordsearch:{easy:'10×10 grid, 6 short words, across and down only.',medium:'12×12 grid, 9 words, diagonals added.',hard:'15×15 grid, up to 13 words, forwards, backwards and diagonal.'},
   letters:{easy:'6 short words with the first letter in place.',medium:'8 words, all letters scrambled.',hard:'10 words, longer ones included.'},
   scramble:{easy:'2 verses, each on its own, in 3-word phrases.',medium:'Up to 3 verses, each on its own, in 2-word pieces.',hard:'Up to 4 verses, each on its own, one word at a time.'},
@@ -39,9 +39,10 @@ function body(p,key){
   }
   if(p.type==='crossword'){
     const g=p.grid.map(row=>`<tr>${row.map(c=>c?`<td class="cw">${c.n?`<sup>${c.n}</sup>`:''}${key?esc(c.ch):''}</td>`:'<td class="cx"></td>').join('')}</tr>`).join('');
-    const li=e=>`<li value="${e.n}">${esc(e.clue)}${p.counts?` — ${e.len} letters`:''}</li>`;
+    const li=e=>`<li value="${e.n}">${esc(e.clue)}${p.counts?` (${e.len})`:''}</li>`;
+    const al=e=>`<li value="${e.n}"><b>${esc(e.word)}</b>${e.ref?` <small>(${esc(e.ref)})</small>`:''}</li>`;
     const bank=!key&&p.bank?`<ul class="bank">${p.bank.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`:'';
-    const clues=key?'':`<div class="clues"><div><h3>Across</h3><ol>${p.across.map(li).join('')}</ol></div><div><h3>Down</h3><ol>${p.down.map(li).join('')}</ol></div></div>`;
+    const clues=key?`<div class="clues"><div><h3>Across</h3><ol>${p.across.map(al).join('')}</ol></div><div><h3>Down</h3><ol>${p.down.map(al).join('')}</ol></div></div>`:`<div class="clues"><div><h3>Across</h3><ol>${p.across.map(li).join('')}</ol></div><div><h3>Down</h3><ol>${p.down.map(li).join('')}</ol></div></div>`;
     return`<table class="cwg">${g}</table>`+bank+clues;
   }
   if(p.type==='letters')return`<div class="ls">${p.items.map((x,i)=>`<div><span>${i+1}.</span><span>${key?esc(x.a):esc(x.s)}</span>${key?'':'<i></i>'}</div>`).join('')}</div>`;
@@ -55,7 +56,7 @@ function promoPrint(isKey){
 }
 function sheet(th,p,key,ref,lv){
   const mode=$('#stk').value,c=CP[th.cat]||CP.old_testament_stories,on=mode!=='none';
-  return`<article class="sheet lv-${lv}${mode==='bw'?' bw':''}" style="--acc:${c[0]};--accd:${c[1]}"><div class="name-line"><span>Name</span><i></i><span>Date</span><i></i></div>
+  return`<article class="sheet lv-${lv}${mode==='bw'?' bw':''}${p.type==='wordsearch'||p.type==='crossword'?' compact':''}" data-floor="${p.type==='wordsearch'?1:p.type==='crossword'?0.96:0.78}" style="--acc:${c[0]};--accd:${c[1]}"><div class="name-line"><span>Name</span><i></i><span>Date</span><i></i></div>
   <div class="band">${on?img(th.stk[0]):''}<h2>${esc(th.title)}</h2>${on?img(th.stk[1]):''}</div><p class="sub">${esc(NAMES[p.type])}${key?' – Answer Key':''}${ref?' · '+esc(ref):''}</p>
   ${key?'<div style="height:.3in"></div>':`<p class="how">${how(p)}</p>`}${body(p,key)}
   <div class="strip">${on?th.stk.slice(2).map(img).join(''):''}</div>
@@ -78,13 +79,12 @@ function fitSheets(){
     var kids=[].slice.call(s.children);
     var set=function(z){kids.forEach(function(k){k.style.zoom=z})};
     var over=function(){return s.scrollHeight>s.clientHeight+1};
-    var z=1;set(1);
-    while(over()&&z>0.78){z-=0.03;set(z)}                 // first try shrinking everything slightly
-    if(over()){                                           // still too tall: drop the sticker row, then shrink more
-      var st=s.querySelector('.strip');if(st)st.style.display='none';
-      z=1;set(1);
-      while(over()&&z>0.6){z-=0.03;set(z)}
-    }
+    var floor=parseFloat(s.getAttribute('data-floor'))||0.78;   // word search and crossword text must stay large
+    set(1);
+    if(!over())return;
+    var st=s.querySelector('.strip');if(st)st.style.display='none';   // 1. drop the decorative sticker row
+    var z=1;
+    while(over()&&z>floor){z-=0.02;set(z)}                           // 2. then shrink a little, never below the floor
   });
 }
 /* ---------- render ---------- */

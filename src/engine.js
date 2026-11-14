@@ -118,7 +118,7 @@ export function pickStickers(text){
 // ---------- Crossword ----------
 // Clues are the verse text with the answer blanked out, so nothing is invented.
 export function makeClues(list,verses,lv,fallback={}){
-  const half={easy:3,medium:4,hard:6}[lv],entries=[],skipped=[],seen=new Set();
+  const half={easy:3,medium:3,hard:3}[lv],entries=[],skipped=[],seen=new Set();
   const core=t=>clean(t.replace(/['’]s$/i,''));
   for(const raw of list){
     const word=clean(raw);
@@ -138,7 +138,7 @@ export function makeClues(list,verses,lv,fallback={}){
     }).join(' ');
     let ref=v.r||'';
     if(ref.toUpperCase().split(/[^A-Z]+/).includes(word))ref=ref.replace(/^.*?(\d+:\d+)$/,'$1'); // don't give the answer away in the reference
-    entries.push({word,clue:(a>0?'… ':'')+text+(b<tk.length?' …':'')+(ref?` (${ref})`:'')});
+    entries.push({word,clue:(a>0?'… ':'')+text+(b<tk.length?' …':''),ref});
   }
   return{entries,skipped};
 }
@@ -197,12 +197,13 @@ function cwLayout(order,max,rand,lim){
   return{placed,cells,r0,c0,rows:r1-r0+1,cols:c1-c0+1,area:(r1-r0+1)*(c1-c0+1),dens:cells.size/((r1-r0+1)*(c1-c0+1))};
 }
 export function crossword(entries,lv,rand){
-  const max={easy:8,medium:10,hard:13}[lv];
-  const E=entries.filter(e=>e.word.length>=3&&e.word.length<=12);
+  const max={easy:6,medium:8,hard:9}[lv];
+  const lim={easy:10,medium:12,hard:14}[lv];
+  const E=entries.filter(e=>e.word.length>=3&&e.word.length<=Math.min(12,lim));   // a word longer than the grid limit cannot be placed
   let best=null;
   for(let a=0;a<400&&E.length;a++){
     const order=E.map(e=>({e,k:e.word.length+rand()*4})).sort((x,y)=>y.k-x.k).slice(0,max+4).map(x=>x.e);
-    const L=cwLayout(order,max,rand,{easy:12,medium:14,hard:16}[lv]);
+    const L=cwLayout(order,max,rand,lim);
     if(!best||L.placed.length>best.placed.length||(L.placed.length===best.placed.length&&L.dens>best.dens))best=L;
   }
   if(!best)return{type:'crossword',grid:[],across:[],down:[],words:[],counts:false,bank:null};
@@ -212,7 +213,7 @@ export function crossword(entries,lv,rand){
   let n=0;const across=[],down=[];
   for(const p of starts){
     const cell=grid[p.r][p.c];if(!cell.n)cell.n=++n;
-    (p.down?down:across).push({n:cell.n,word:p.e.word,clue:p.e.clue,len:p.e.word.length});
+    (p.down?down:across).push({n:cell.n,word:p.e.word,clue:p.e.clue,ref:p.e.ref||'',len:p.e.word.length});
   }
   const byN=(a,b)=>a.n-b.n;across.sort(byN);down.sort(byN);
   const ws=starts.map(p=>p.e.word);

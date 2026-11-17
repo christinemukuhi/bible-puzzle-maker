@@ -28,7 +28,7 @@ const NOTES={
   scramble:{easy:'2 verses, each on its own, in 3-word phrases.',medium:'Up to 3 verses, each on its own, in 2-word pieces.',hard:'Up to 4 verses, each on its own, one word at a time.'},
   cloze:{easy:'2 verses, each on its own, few blanks, first letter given.',medium:'Up to 3 verses, each on its own, more blanks.',hard:'Up to 4 verses, each on its own, many blanks, extra words in the bank.'}
 };
-function body(p,key){
+function body(p,key,lv){
   if(p.type==='scramble')return p.items.map((x,i)=>key?`<p class="verse vk"><b>${esc(x.ref)}</b> ${esc(x.answer)}</p>`:`<div class="vb"><div class="vref">${i+1}.${x.ref?' '+esc(x.ref):''}</div><div class="tiles">${x.words.map(w=>`<span class="tile">${esc(w)}</span>`).join('')}</div><div class="lines">${'<i></i>'.repeat(x.lines)}</div></div>`).join('');
   if(p.type==='cloze'){
     const vh=p.verses.map((v,i)=>{
@@ -38,12 +38,21 @@ function body(p,key){
     return vh+(key?'':`<ul class="bank">${p.bank.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`);
   }
   if(p.type==='crossword'){
-    const g=p.grid.map(row=>`<tr>${row.map(c=>c?`<td class="cw">${c.n?`<sup>${c.n}</sup>`:''}${key?esc(c.ch):''}</td>`:'<td class="cx"></td>').join('')}</tr>`).join('');
+    // The grid is drawn as a vector graphic: every square is exactly the same size and every line is straight and even, on screen and in a saved PDF.
+    const cs={easy:1.75,medium:1.625,hard:1.5}[lv]||1.625,R=p.grid.length,C=p.grid[0].length,U=40;
+    let rects='',txt='';
+    p.grid.forEach((row,r)=>row.forEach((c,k)=>{
+      if(!c)return;const x=1.5+k*U,y=1.5+r*U;
+      rects+=`<rect x="${x}" y="${y}" width="${U}" height="${U}"/>`;
+      if(c.n)txt+=`<text x="${x+3.5}" y="${y+16}" font-size="16" font-weight="700">${c.n}</text>`;
+      if(key)txt+=`<text x="${x+U*0.58}" y="${y+U*0.6}" font-size="24" font-weight="800" text-anchor="middle" dominant-baseline="central">${esc(c.ch)}</text>`;
+    }));
+    const g=`<svg class="cwg" role="img" aria-label="Crossword grid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${C*U+3} ${R*U+3}" style="width:${((C*U+3)*cs/U).toFixed(3)}rem;height:${((R*U+3)*cs/U).toFixed(3)}rem"><g fill="#fff" stroke="#000" stroke-width="2.6" stroke-linejoin="miter">${rects}</g><g fill="#000" font-family="Trebuchet MS,Verdana,sans-serif">${txt}</g></svg>`;
     const li=e=>`<li value="${e.n}">${esc(e.clue)}${p.counts?` (${e.len})`:''}</li>`;
     const al=e=>`<li value="${e.n}"><b>${esc(e.word)}</b>${e.ref?` <small>(${esc(e.ref)})</small>`:''}</li>`;
     const bank=!key&&p.bank?`<ul class="bank">${p.bank.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`:'';
     const clues=key?`<div class="clues"><div><h3>Across</h3><ol>${p.across.map(al).join('')}</ol></div><div><h3>Down</h3><ol>${p.down.map(al).join('')}</ol></div></div>`:`<div class="clues"><div><h3>Across</h3><ol>${p.across.map(li).join('')}</ol></div><div><h3>Down</h3><ol>${p.down.map(li).join('')}</ol></div></div>`;
-    return`<table class="cwg">${g}</table>`+bank+clues;
+    return g+bank+clues;
   }
   if(p.type==='letters')return`<div class="ls">${p.items.map((x,i)=>`<div><span>${i+1}.</span><span>${key?esc(x.a):esc(x.s)}</span>${key?'':'<i></i>'}</div>`).join('')}</div>`;
   const rows=p.grid.map((row,r)=>`<tr>${row.map((ch,c)=>`<td class="${key&&p.sol.has(r+','+c)?'hit':''}">${ch}</td>`).join('')}</tr>`).join('');
@@ -58,7 +67,7 @@ function sheet(th,p,key,ref,lv){
   const mode=$('#stk').value,c=CP[th.cat]||CP.old_testament_stories,on=mode!=='none';
   return`<article class="sheet lv-${lv}${mode==='bw'?' bw':''}${p.type==='wordsearch'||p.type==='crossword'?' compact':''}" data-floor="${p.type==='wordsearch'?1:p.type==='crossword'?0.96:0.78}" style="--acc:${c[0]};--accd:${c[1]}"><div class="name-line"><span>Name</span><i></i><span>Date</span><i></i></div>
   <div class="band">${on?img(th.stk[0]):''}<h2>${esc(th.title)}</h2>${on?img(th.stk[1]):''}</div><p class="sub">${esc(NAMES[p.type])}${key?' – Answer Key':''}${ref?' · '+esc(ref):''}</p>
-  ${key?'<div style="height:.3in"></div>':`<p class="how">${how(p)}</p>`}${body(p,key)}
+  ${key?'<div style="height:.3in"></div>':`<p class="how">${how(p)}</p>`}${body(p,key,lv)}
   <div class="strip">${on?th.stk.slice(2).map(img).join(''):''}</div>
   ${promoPrint(key)}
   <footer>Made with Bible Puzzle Maker${p.type==='scramble'||p.type==='cloze'?' · World English Bible':''}</footer></article>`;

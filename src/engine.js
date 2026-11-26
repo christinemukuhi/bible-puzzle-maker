@@ -49,7 +49,7 @@ export function wordsearch(list,lv,r){
   const size=SIZE[lv];
   const pool=vocabPool(list,lv,{easy:Math.min(8,size),medium:Math.min(10,size),hard:size},6);
   const picked=shuffle(pool,r).slice(0,COUNT[lv]).sort((a,b)=>b.length-a.length);
-  const grid=Array.from({length:size},()=>Array(size).fill('')),sol=new Set(),placed=[];
+  const grid=Array.from({length:size},()=>Array(size).fill('')),sol=new Set(),placed=[],slots=[];
   for(const w of picked){
     for(let k=0;k<300;k++){
       const[dr,dc]=DIRS[lv][Math.floor(r()*DIRS[lv].length)],r0=Math.floor(r()*size),c0=Math.floor(r()*size);
@@ -58,11 +58,11 @@ export function wordsearch(list,lv,r){
       let ok=true;for(let i=0;i<w.length;i++){const ch=grid[r0+dr*i][c0+dc*i];if(ch&&ch!==w[i]){ok=false;break}}
       if(!ok)continue;
       for(let i=0;i<w.length;i++){grid[r0+dr*i][c0+dc*i]=w[i];sol.add((r0+dr*i)+','+(c0+dc*i))}
-      placed.push(w);break;
+      placed.push(w);slots.push({w,r:r0,c:c0,dr,dc});break;
     }
   }
   for(let i=0;i<size;i++)for(let j=0;j<size;j++)if(!grid[i][j])grid[i][j]='ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(r()*26)];
-  return{type:'wordsearch',size,grid,sol,words:placed.sort()};
+  return{type:'wordsearch',size,grid,sol,slots,words:placed.sort()};
 }
 // Letter scramble: easy = short words with first letter given, medium = 8 words, hard = 10 longer words
 export function letters(list,lv,r){

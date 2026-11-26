@@ -55,8 +55,11 @@ function body(p,key,lv){
     return g+bank+clues;
   }
   if(p.type==='letters')return`<div class="ls">${p.items.map((x,i)=>`<div><span>${i+1}.</span><span>${key?esc(x.a):esc(x.s)}</span>${key?'':'<i></i>'}</div>`).join('')}</div>`;
-  const rows=p.grid.map((row,r)=>`<tr>${row.map((ch,c)=>`<td class="${key&&p.sol.has(r+','+c)?'hit':''}">${ch}</td>`).join('')}</tr>`).join('');
-  return`<table class="grid">${rows}</table>`+(key?'':`<ul class="wordlist">${p.words.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`);
+  const rows=p.grid.map((row,r)=>`<tr>${row.map((ch,c)=>`<td>${ch}</td>`).join('')}</tr>`).join('');
+  // Answer key: one rounded "slot" (pill) per word, drawn over the grid, instead of colouring letter by letter
+  const PILL=['#F2B632','#7FC8F8','#F59AA8','#9ADB8F','#C3A5EE','#FFA766'];
+  const pills=key?`<svg class="wsk" viewBox="0 0 ${p.size} ${p.size}" preserveAspectRatio="none" aria-hidden="true">${p.slots.map((s,i)=>`<line x1="${s.c+.5}" y1="${s.r+.5}" x2="${s.c+s.dc*(s.w.length-1)+.5}" y2="${s.r+s.dr*(s.w.length-1)+.5}" stroke="${PILL[i%PILL.length]}" stroke-width=".78" stroke-linecap="round"/>`).join('')}</svg>`:'';
+  return`<div class="wsg"><table class="grid">${rows}</table>${pills}</div>`+(key?'':`<ul class="wordlist">${p.words.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`);
 }
 // Promotion line printed on the worksheets (set in src/config.js)
 function promoPrint(isKey){
@@ -143,6 +146,7 @@ if(/^https?:\/\//.test(LANDING_URL)&&!LANDING_URL.includes('YOUR-')&&PROMO.appBa
   const m=$('#more');
   m.innerHTML=`<span>${esc(PROMO.appBannerText)}</span> <a href="${esc(LANDING_URL)}" target="_blank" rel="noopener">${esc(PROMO.appBannerButton)}</a>`;
   m.hidden=false;
+  if(PROMO.headerButton){const pb=$('#premium');pb.href=LANDING_URL;pb.textContent=PROMO.headerButton;pb.hidden=false}
 }
 fillVerses();render();
 

@@ -75,3 +75,14 @@ assert.ok(fs.existsSync(new URL('../public/favicon.ico', import.meta.url)), 'fav
 const page = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 for (const ref of page.match(/href="[^"#]+\.(png|ico)"/g) || []) assert.ok(fs.existsSync(new URL('../public/' + ref.slice(6, -1), import.meta.url)), ref + ' is missing from public/');
 console.log('engine + data OK:', D.themes.length, 'themes,', files.size, 'stickers');
+
+// word search answer key: every word has a slot that reads back exactly from the grid
+for (const lv of ['easy', 'medium', 'hard']) {
+  const ws = wordsearch(D.themes[0].vocab, lv, rng(7));
+  assert.equal(ws.slots.length, ws.words.length);
+  for (const s of ws.slots) {
+    let t = ''; for (let i = 0; i < s.w.length; i++) t += ws.grid[s.r + s.dr * i][s.c + s.dc * i];
+    assert.equal(t, s.w, 'slot spells ' + s.w);
+  }
+}
+console.log('word search slots OK');

@@ -48,7 +48,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .bank{list-style:none;display:flex;flex-wrap:wrap;gap:.6rem 1rem;justify-content:center;padding:.9rem;margin:.3in 0 0;border:2.5px dashed #000;border-radius:12px;font-size:1.35rem;font-weight:700}
 .grid{border-collapse:collapse;margin:0 auto}
 .grid td{width:1.8rem;height:1.8rem;text-align:center;font:700 1.3rem "Courier New",monospace}
-.grid td.hit{background:#F2B632;border-radius:50%}
+.wsg{position:relative;width:fit-content;margin:0 auto}
+.wsg .grid{margin:0}
+.wsk{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:multiply;opacity:.6}
+.bw .wsk line{stroke:#bdbdbd}
 .wordlist{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem 1rem;padding:0;margin:.3in 0 0;font-size:1.3rem;font-weight:700}
 .wordlist li:before{content:"\2610  "}
 .ls{display:grid;grid-template-columns:1fr 1fr;gap:.35in 1rem}
@@ -64,8 +67,11 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 @media (max-width:900px){.layout{grid-template-columns:1fr}.controls{position:static}.sheet{zoom:.5}}
 @media print{.sheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{background:#fff}.top,.controls{display:none!important}.layout{display:block;padding:0;max-width:none}#preview{display:block;overflow:visible}
 .sheet{zoom:1;box-shadow:none;width:var(--sheet-w);height:var(--sheet-h);min-height:0;break-after:page}.sheet:last-child{break-after:auto}
-.grid td.hit{background:#ddd!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.wsk{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 #install{background:var(--sun);color:#1F3A5F;border:0;border-radius:999px;padding:.45rem 1rem}
+#premium{background:var(--sun);color:#1F3A5F;font-weight:700;border-radius:999px;padding:.45rem 1rem;text-decoration:none;white-space:nowrap}
+#premium[hidden]{display:none}
+@media (max-width:560px){.top .st{display:none}.top{gap:.6rem}.top h1{font-size:1.1rem}}
 
 /* promotions */
 #more{background:#FFF7DD;border:2px solid #F2B632;border-radius:12px;padding:.7rem .9rem;color:#4a3b00}

@@ -29,7 +29,7 @@ npm run build   # production build into dist/
    - iPhone and iPad: Share, then **Add to Home Screen**.
 
 ## Connect it to your landing page
-Open `src/config.js` and replace `https://YOUR-LANDING-PAGE-LINK` with your landing page address. A small "More puzzles are on the way" link then appears in the app. Until you change it, that link stays hidden.
+Your Premium edition link (`https://mukuhi7.gumroad.com/l/unyrgh`) is already set in `src/config.js`. It shows as a gold "Get Premium" button in the top bar and as a banner under the controls. To change the wording, edit `appBannerText`, `appBannerButton` and `headerButton` in that file. Set `headerButton` to `''` to hide the top-bar button.
 
 ## Icons
 The app icon is the glowing puzzle piece, cross and open Bible. The original artwork is saved in `design/app-icon-original.png`. All the sizes are in `public/`:

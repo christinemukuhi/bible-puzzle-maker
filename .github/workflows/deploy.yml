@@ -21,6 +21,9 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npm run build
+        env:
+          # Uses your repository name automatically, so the app works whatever you called the repo.
+          VITE_BASE: /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -9,8 +9,8 @@ export const PROMO = {
   appBannerButton: 'Get Premium',
   headerButton: 'Get Premium',      // small button in the top bar. Leave '' to hide it
   // Line printed at the bottom of every worksheet. It only prints when printUrlText is filled in.
-  printText: 'Want more Bible puzzles?',
-  printUrlText: '',          // the address people should type, for example 'yoursite.com/puzzles'
-  qrImage: '',               // optional: 'qr.png' once you add a QR code image to the public folder
+  printText: 'Want puzzles from any verse in the Bible? Get the Premium edition:',
+  printUrlText: 'mukuhi7.gumroad.com/l/unyrgh',   // the address people can type. Leave '' to print no promo line at all
+  qrImage: 'qr.png',         // QR code for the same link (public/qr.png). Leave '' for no QR code
   showOnAnswerKey: true      // false = only print it on the puzzle page, not the answer key
 };

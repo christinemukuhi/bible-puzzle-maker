@@ -52,3 +52,6 @@ To change the icon, replace those files and keep the same names and sizes.
 ## Before you share it widely
 - The Old Testament text uses "Yahweh" (World English Bible). Decide whether to keep it.
 - Confirm the license for the Bible text file and for the sticker artwork you ship, especially if you also sell paid editions.
+
+## Promo line on printed worksheets
+Every worksheet (and answer key) now prints a small line at the bottom with a QR code and your Premium link, `mukuhi7.gumroad.com/l/unyrgh`. In a saved PDF the link is clickable. Change the wording or turn it off in `src/config.js`: set `printUrlText` to `''` to print nothing, `qrImage` to `''` to drop only the QR code, or `showOnAnswerKey` to `false` to keep it off answer keys. The QR image is `public/qr.png`.

@@ -27,7 +27,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .band{display:flex;align-items:center;justify-content:center;gap:1rem}
 .band img{height:1.1in;width:1.1in;object-fit:contain;flex:none}
 .sheet h2{margin:0;font:800 2.3rem ui-rounded,"Arial Rounded MT Bold","Trebuchet MS",sans-serif;text-align:center;color:var(--accd)}
-.strip{display:flex;justify-content:space-around;align-items:flex-end;gap:.3rem;margin-top:auto;padding-top:.2in;min-height:.3in}
+.strip{display:flex;justify-content:space-around;align-items:flex-end;gap:.3rem;margin-top:auto;padding-top:.2in;min-height:.3in;flex:none}
 .strip img{height:.8in;max-width:1.15in;object-fit:contain}
 .bw img{filter:grayscale(1) contrast(1.25)}
 .tile:nth-child(5n+1),.bank li:nth-child(5n+1){background:#FFE8A3}.tile:nth-child(5n+2),.bank li:nth-child(5n+2){background:#CFE8FF}.tile:nth-child(5n+3),.bank li:nth-child(5n+3){background:#D6F2D6}.tile:nth-child(5n+4),.bank li:nth-child(5n+4){background:#F9D4E6}.tile:nth-child(5n),.bank li:nth-child(5n){background:#E5D9FA}
@@ -77,7 +77,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 #more{background:#FFF7DD;border:2px solid #F2B632;border-radius:12px;padding:.7rem .9rem;color:#4a3b00}
 #more a{display:inline-block;margin-top:.35rem;background:#F2B632;color:#1F3A5F;font-weight:700;padding:.3rem .9rem;border-radius:999px;text-decoration:none}
 .promo-print{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-top:.1in;font-size:.9rem;color:#222}
-.promo-print img{height:.6in;width:.6in}
+.promo-print img{height:.6in;width:.6in;flex:none}
+.promo-print a{color:#1F3A5F;text-decoration:none}
+.promo-print{flex:none}
 
 #preview.big .sheet{zoom:1}
 

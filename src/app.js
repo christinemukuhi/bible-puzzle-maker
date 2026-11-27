@@ -64,7 +64,7 @@ function body(p,key,lv){
 // Promotion line printed on the worksheets (set in src/config.js)
 function promoPrint(isKey){
   if(!PROMO.printUrlText||(isKey&&!PROMO.showOnAnswerKey))return '';
-  return `<div class="promo-print">${PROMO.qrImage?`<img src="${esc(PROMO.qrImage)}" alt="">`:''}<span>${esc(PROMO.printText)} <b>${esc(PROMO.printUrlText)}</b></span></div>`;
+  return `<div class="promo-print">${PROMO.qrImage?`<img src="${esc(PROMO.qrImage)}" alt="">`:''}<span>${esc(PROMO.printText)} <a href="${esc(LANDING_URL)}"><b>${esc(PROMO.printUrlText)}</b></a></span></div>`;
 }
 function sheet(th,p,key,ref,lv){
   const mode=$('#stk').value,c=CP[th.cat]||CP.old_testament_stories,on=mode!=='none';

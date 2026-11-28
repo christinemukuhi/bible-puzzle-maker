@@ -50,12 +50,25 @@
       <button id="print" type="button" class="primary">Print or save PDF</button>
       <button id="again" type="button">New puzzle</button>
     </div>
+    <button id="addPack" type="button" class="wide">Add to pack</button>
+    <details id="packBox" class="pack">
+      <summary>My pack (<span id="packCount">0</span>)</summary>
+      <p class="note" id="packEmpty">Add puzzles with “Add to pack”, then print or save them all as one PDF. Use “New puzzle” first to add a different version of the same puzzle.</p>
+      <ol id="packList"></ol>
+      <label>Answer keys <select id="packKeys"><option value="end">At the end of the pack</option><option value="each">After each puzzle</option><option value="none">Not included</option></select></label>
+      <div class="actions">
+        <button id="packPrint" type="button" class="primary" disabled>Print or save pack as PDF</button>
+        <button id="packClear" type="button" disabled>Clear pack</button>
+      </div>
+      <p class="note" id="packMsg" role="status" hidden></p>
+    </details>
     <p class="note">Verses are World English Bible text. Word searches and letter scrambles use each theme’s vocabulary list.</p>
     <p class="note" id="more" hidden>More puzzles are on the way. <a href="#" target="_blank" rel="noopener">See what’s coming</a></p>
   <p class="note" id="iosHint" hidden>To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>
   </form>
   <section id="preview" aria-live="polite"></section>
 </main>
+<div id="packOut" aria-hidden="true"></div>
 <script type="module" src="/src/app.js"></script>
 </body>
 </html>

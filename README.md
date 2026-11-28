@@ -55,3 +55,6 @@ To change the icon, replace those files and keep the same names and sizes.
 
 ## Promo line on printed worksheets
 Every worksheet (and answer key) now prints a small line at the bottom with a QR code and your Premium link, `mukuhi7.gumroad.com/l/unyrgh`. In a saved PDF the link is clickable. Change the wording or turn it off in `src/config.js`: set `printUrlText` to `''` to print nothing, `qrImage` to `''` to drop only the QR code, or `showOnAnswerKey` to `false` to keep it off answer keys. The QR image is `public/qr.png`.
+
+## Pack: several puzzles in one PDF
+Press **Add to pack** on any puzzle. The **My pack** panel lists them, and you can reorder them (↑ ↓), remove any, and choose where the answer keys go: at the end, after each puzzle, or not at all. **Print or save pack as PDF** puts everything in one PDF (choose **Save as PDF** in the print window). The pack is remembered on that device. It uses the Paper and Stickers settings at the time you print. To change how many puzzles a pack can hold, edit `PACK_MAX` in `src/app.js`.
